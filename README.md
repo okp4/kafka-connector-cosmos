@@ -12,6 +12,10 @@ a [Kafka connector](https://docs.confluent.io/platform/current/connect/concepts.
 used to move [blocks](https://docs.cosmos.network/master/intro/sdk-app-architecture.html) from a Cosmos blockchain (in
 priority the [økp4 chain](https://github.com/okp4/okp4d)) into an Apache Kafka® topic.
 
+<p align="center">
+  <img src="./docs/overview.png">
+</p>
+
 ## Build
 
 ### Prerequsites
