@@ -14,6 +14,10 @@ repositories {
 }
 
 dependencies {
+    val kafkaVersion = "3.1.0"
+    compileOnly("org.apache.kafka:connect-api:$kafkaVersion")
+    compileOnly("org.apache.kafka:connect-runtime:$kafkaVersion")
+
     testImplementation(kotlin("test"))
 
     val kotestVersion = "5.2.1"
