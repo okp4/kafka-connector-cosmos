@@ -7,6 +7,7 @@ plugins {
 
 group = "com.okp4"
 version = "1.0-SNAPSHOT"
+description = "A Kafka Connect CØSMOS connector for ingesting blocks from CØSMOS blockchains into Kafka."
 
 repositories {
     mavenCentral()
