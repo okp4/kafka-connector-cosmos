@@ -1,3 +1,1 @@
-
-rootProject.name = "boilerplate-kotlin"
-
+rootProject.name = "kafka-connector-cosmos"
