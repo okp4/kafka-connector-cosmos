@@ -3,6 +3,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.6.10"
     application
+
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
+    id("org.jmailen.kotlinter") version "3.9.0"
 }
 
 group = "com.okp4"
