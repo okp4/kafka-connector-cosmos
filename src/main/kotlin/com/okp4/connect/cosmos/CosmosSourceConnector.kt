@@ -1,10 +1,7 @@
 package com.okp4.connect.cosmos
 
-import org.apache.kafka.common.config.AbstractConfig
-import org.apache.kafka.common.config.Config
 import org.apache.kafka.common.config.ConfigDef
 import org.apache.kafka.common.config.ConfigDef.Importance
-import org.apache.kafka.common.config.ConfigException
 import org.apache.kafka.common.utils.AppInfoParser
 import org.apache.kafka.connect.connector.Task
 import org.apache.kafka.connect.source.SourceConnector
