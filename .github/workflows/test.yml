@@ -21,7 +21,7 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Lint kotlin files
+      - name: Test kotlin
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test
