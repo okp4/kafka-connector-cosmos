@@ -34,7 +34,10 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.apply {
+        jvmTarget = "11"
+        allWarningsAsErrors = true
+    }
 }
 
 application {
