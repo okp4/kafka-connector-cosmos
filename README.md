@@ -16,11 +16,16 @@ priority the [økp4 chain](https://github.com/okp4/okp4d)) into an Apache Kafka�
   <img src="./docs/overview.png">
 </p>
 
+The connector can be used when there is a need for connecting CØSMOS blockchains with Kafka in order to build a real-time
+data pipelines based on blocks.
+
 ## Build
 
 ### Prerequsites
 
-To build the project, you'll need to have Java 11+ properly installed.
+To build the project, you will need the following dependencies:
+
+- [Java 11+](https://openjdk.java.net/)
 
 ## Building
 
