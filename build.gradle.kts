@@ -4,6 +4,8 @@ plugins {
     kotlin("jvm") version "1.6.10"
     application
 
+    id("maven-publish")
+
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("org.jmailen.kotlinter") version "3.9.0"
     id("io.gitlab.arturbosch.detekt") version "1.20.0-RC1"
@@ -60,4 +62,23 @@ tasks.withType<KotlinCompile> {
 
 application {
     mainClass.set("MainKt")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            artifact(tasks["fatJar"])
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/okp4/kafka-connector-cosmos")
+            credentials {
+                username = System.getenv("MAVEN_REPOSITORY_USERNAME")
+                password = System.getenv("MAVEN_REPOSITORY_PASSWORD")
+            }
+        }
+    }
 }
