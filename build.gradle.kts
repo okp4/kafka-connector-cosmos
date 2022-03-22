@@ -49,6 +49,10 @@ tasks {
     }
 }
 
+tasks.register("lint") {
+    dependsOn.addAll(listOf("ktlintCheck", "detekt"))
+}
+
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
