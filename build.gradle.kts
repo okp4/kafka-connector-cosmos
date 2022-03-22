@@ -6,6 +6,7 @@ plugins {
 
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
     id("org.jmailen.kotlinter") version "3.9.0"
+    id("io.gitlab.arturbosch.detekt") version "1.20.0-RC1"
 }
 
 group = "com.okp4"
