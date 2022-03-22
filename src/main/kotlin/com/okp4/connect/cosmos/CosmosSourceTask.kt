@@ -25,10 +25,10 @@ class CosmosSourceTask : SourceTask() {
         )
     }
 
+    // TODO: ⚠️ fake code - implement-me correctly here!
     @Throws(InterruptedException::class)
-    override fun poll(): List<SourceRecord>? =
-        // TODO: ⚠️ fake code - implement-me correctly here!
-        when {
+    override fun poll(): List<SourceRecord>? {
+        val sourceRecords = when {
             (0..10).shuffled().last() == 5 -> {
                 height++
 
@@ -51,6 +51,8 @@ class CosmosSourceTask : SourceTask() {
                 null
             }
         }
+        return sourceRecords
+    }
 
     override fun stop() {
         // TODO implement-me!

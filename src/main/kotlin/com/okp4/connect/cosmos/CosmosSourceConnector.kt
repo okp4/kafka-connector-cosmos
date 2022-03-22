@@ -18,6 +18,7 @@ class CosmosSourceConnector : SourceConnector() {
     override fun taskConfigs(maxTasks: Int): List<Map<String, String>> = listOf(config)
 
     override fun stop() {
+        // TODO: to implement (if relevant)
     }
 
     override fun config(): ConfigDef {

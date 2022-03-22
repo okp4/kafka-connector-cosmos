@@ -1,5 +1,5 @@
-const val message = "Hello World!"
+const val MESSAGE = "Hello World!"
 
 fun main() {
-    println(message)
+    println(MESSAGE)
 }
