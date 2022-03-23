@@ -1,17 +1,18 @@
 name: Lint
 
 on:
+  workflow_call:
+
   push:
     branches: [ main ]
 
   pull_request:
     branches: [ main ]
 
-  workflow_dispatch:
-
 jobs:
   lint-commits:
     runs-on: ubuntu-20.04
+    if: github.actor != 'dependabot[bot]'
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -31,6 +32,7 @@ jobs:
         uses: avto-dev/markdown-lint@v1.5.0
         with:
           args: "**/*.md"
+          ignore: "CHANGELOG.md"
 
   lint-yaml:
     runs-on: ubuntu-20.04
@@ -40,3 +42,17 @@ jobs:
 
       - name: Lint yaml files
         uses: ibiqlik/action-yamllint@v3.1.0
+
+  lint-kotlin:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Check gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Lint kotlin files
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: lint
