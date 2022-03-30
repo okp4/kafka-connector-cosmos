@@ -7,7 +7,7 @@ import org.apache.kafka.connect.connector.Task
 import org.apache.kafka.connect.source.SourceConnector
 
 class CosmosSourceConnector : SourceConnector() {
-    var config: Map<String, String> = mapOf()
+    private var config: Map<String, String> = mapOf()
 
     override fun start(props: Map<String, String>) {
         config = props
@@ -18,7 +18,7 @@ class CosmosSourceConnector : SourceConnector() {
     override fun taskConfigs(maxTasks: Int): List<Map<String, String>> = listOf(config)
 
     override fun stop() {
-        // TODO: to implement (if relevant)
+        // NTD
     }
 
     override fun config(): ConfigDef {
@@ -29,21 +29,35 @@ class CosmosSourceConnector : SourceConnector() {
 
     companion object {
         const val TOPIC_CONFIG = "topic"
-        const val NODE_CONFIG = "node"
+        const val NODE_ADDRESS_CONFIG = "node-address"
+        const val NODE_PORT_CONFIG = "node-port"
         const val CHAIN_ID_CONFIG = "chain-id"
+        const val MAX_POLL_LENGTH_CONFIG = "max-poll-length"
 
-        val VERSION = AppInfoParser.getVersion()
+        val VERSION: String = AppInfoParser.getVersion()
 
         private val CONFIG_DEF = ConfigDef().define(
-            NODE_CONFIG,
+            NODE_ADDRESS_CONFIG,
             ConfigDef.Type.STRING,
-            "tcp://localhost:26657",
+            "localhost",
             Importance.HIGH,
-            "<host>:<port> to Tendermint RPC interface for this chain"
+            "Address of the Tendermint RPC interface for this chain"
+        ).define(
+            NODE_PORT_CONFIG,
+            ConfigDef.Type.INT,
+            26657,
+            Importance.HIGH,
+            "Port of the Tendermint RPC interface for this chain"
         ).define(
             CHAIN_ID_CONFIG, ConfigDef.Type.STRING, "okp4-testnet-1", Importance.LOW, "The network chain ID"
         ).define(
             TOPIC_CONFIG, ConfigDef.Type.LIST, Importance.HIGH, "The topic to publish data to"
+        ).define(
+            MAX_POLL_LENGTH_CONFIG,
+            ConfigDef.Type.LONG,
+            1000,
+            Importance.MEDIUM,
+            "The max number of block to put in the queue",
         )
     }
 }

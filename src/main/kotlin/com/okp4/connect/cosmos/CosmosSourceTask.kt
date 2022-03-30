@@ -1,61 +1,81 @@
 package com.okp4.connect.cosmos
 
+import kotlinx.coroutines.runBlocking
 import org.apache.kafka.connect.data.Schema
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
+import java.util.Collections
 
 class CosmosSourceTask : SourceTask() {
     private var chainId: String? = null
-    private var node: String? = null
+    private var nodeAddress: String? = null
+    private var nodePort: Int = 0
     private var topic: String? = null
+    private var maxPollLength: Long = 0
 
     private var sourcePartition: Map<String, String?> = mapOf()
     private var height: Long = 0
+
+    // Get offset storage for blocks info
+    private val offset =
+        context.offsetStorageReader().offset(Collections.singletonMap<String, Any>("BLOCK_FIELD", "okp4"/* TODO: find which value goes here*/))
+
+    private lateinit var serviceClient: CosmosServiceClient
 
     override fun version(): String = CosmosSourceConnector.VERSION
 
     override fun start(props: Map<String, String>) {
         chainId = props[CosmosSourceConnector.CHAIN_ID_CONFIG]
-        node = props[CosmosSourceConnector.NODE_CONFIG]
+        nodeAddress = props[CosmosSourceConnector.NODE_ADDRESS_CONFIG]
+        nodePort = props[CosmosSourceConnector.NODE_PORT_CONFIG]?.toInt() ?: 0
         topic = props[CosmosSourceConnector.TOPIC_CONFIG]
+        maxPollLength = props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG]?.toLong() ?: 1000
 
         sourcePartition = mapOf(
             CHAIN_ID_FIELD to chainId,
-            NODE_FIELD to node
+            NODE_FIELD to nodeAddress
         )
+        serviceClient = CosmosServiceClient(nodeAddress.orEmpty(), nodePort)
     }
 
-    // TODO: ⚠️ fake code - implement-me correctly here!
     @Throws(InterruptedException::class)
-    override fun poll(): List<SourceRecord>? {
-        val sourceRecords = when {
-            (0..10).shuffled().last() == 5 -> {
-                height++
+    override fun poll(): List<SourceRecord> {
+        // Get last block height
+        height = offset[HEIGHT_FIELD] as Long
 
-                listOf(
-                    SourceRecord(
-                        sourcePartition,
-                        mapOf(HEIGHT_FIELD to height),
-                        topic,
-                        null,
-                        null,
-                        null,
-                        Schema.STRING_SCHEMA,
-                        "This is payload for block $height",
-                        System.currentTimeMillis()
+        val sourceRecords: MutableList<SourceRecord> = mutableListOf()
+
+        var i: Long = 0
+
+        runBlocking {
+            while (i <= maxPollLength) {
+                val result = serviceClient.getBlockByHeight(i)
+                if (result.isFailure) {
+                    break
+                } else {
+                    sourceRecords.add(
+                        SourceRecord(
+                            sourcePartition,
+                            mapOf(HEIGHT_FIELD to height),
+                            topic,
+                            null,
+                            null,
+                            null,
+                            Schema.BYTES_SCHEMA,
+                            result.getOrNull()?.toByteArray(),
+                            System.currentTimeMillis()
+                        )
                     )
-                )
-            }
-            else -> {
-                Thread.sleep(1000)
-                null
+                }
+                ++height
+                ++i
             }
         }
         return sourceRecords
     }
 
     override fun stop() {
-        // TODO implement-me!
+        serviceClient.close()
     }
 
     companion object {
