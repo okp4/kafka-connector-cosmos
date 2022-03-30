@@ -17,14 +17,32 @@ description = "A Kafka Connect CØSMOS connector for ingesting blocks from CØSM
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/okp4/kafka-connector-cosmos")
+        credentials {
+            username = System.getenv("MAVEN_REPOSITORY_USERNAME")
+            password = System.getenv("MAVEN_REPOSITORY_PASSWORD")
+        }
+    }
 }
 
 dependencies {
     val kafkaVersion = "3.1.0"
     compileOnly("org.apache.kafka:connect-api:$kafkaVersion")
     compileOnly("org.apache.kafka:connect-runtime:$kafkaVersion")
+    compileOnly("com.okp4.grpc:cosmos-sdk:1.0-SNAPSHOT")
 
     testImplementation(kotlin("test"))
+
+    val grpcKotlinVersion = "1.2.1"
+    api("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
+
+    val coroutinesVersion = "1.6.0"
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+
+    val grpcVersion = "1.45.0"
+    api("io.grpc:grpc-protobuf:$grpcVersion")
+    runtimeOnly("io.grpc:grpc-netty:$grpcVersion")
 
     val kotestVersion = "5.2.1"
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
@@ -62,10 +80,6 @@ tasks.withType<KotlinCompile> {
         jvmTarget = "11"
         allWarningsAsErrors = true
     }
-}
-
-application {
-    mainClass.set("MainKt")
 }
 
 publishing {
