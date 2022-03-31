@@ -41,13 +41,13 @@ class CosmosSourceConnector : SourceConnector() {
             ConfigDef.Type.STRING,
             "localhost",
             Importance.HIGH,
-            "Address of the Tendermint RPC interface for this chain"
+            "Address of the Cosmos gRPC endpoint for this chain"
         ).define(
             NODE_PORT_CONFIG,
             ConfigDef.Type.INT,
             26657,
             Importance.HIGH,
-            "Port of the Tendermint RPC interface for this chain"
+            "Port of the Cosmos gRPC endpoint for this chain"
         ).define(
             CHAIN_ID_CONFIG, ConfigDef.Type.STRING, "okp4-testnet-1", Importance.LOW, "The network chain ID"
         ).define(
