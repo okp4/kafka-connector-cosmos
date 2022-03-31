@@ -7,43 +7,36 @@ import org.apache.kafka.connect.source.SourceTask
 import java.util.Collections
 
 class CosmosSourceTask : SourceTask() {
-    private var chainId: String? = null
-    private var nodeAddress: String? = null
-    private var nodePort: Int = 0
-    private var topic: String? = null
+    private lateinit var topic: String
     private var maxPollLength: Long = 0
-    private var tlsEnable = false
 
     private var sourcePartition: Map<String, String?> = mapOf()
-    private var height: Long = 0
-
-    // Get offset storage for blocks info
-    private val offset =
-        context.offsetStorageReader().offset(Collections.singletonMap<String, Any>("BLOCK_FIELD", "okp4"/* TODO: find which value goes here*/))
 
     private lateinit var serviceClient: CosmosServiceClient
 
     override fun version(): String = CosmosSourceConnector.VERSION
 
     override fun start(props: Map<String, String>) {
-        chainId = props[CosmosSourceConnector.CHAIN_ID_CONFIG]
-        nodeAddress = props[CosmosSourceConnector.NODE_ADDRESS_CONFIG]
-        nodePort = props[CosmosSourceConnector.NODE_PORT_CONFIG]?.toInt() ?: 0
-        topic = props[CosmosSourceConnector.TOPIC_CONFIG]
+        val nodeAddress = props[CosmosSourceConnector.NODE_ADDRESS_CONFIG] ?: throw Exception("Node address cannot be empty")
+        val nodePort = props[CosmosSourceConnector.NODE_PORT_CONFIG]?.toInt() ?: throw Exception("Node port cannot be empty")
+        val tlsEnable = props[CosmosSourceConnector.TLS_ENABLE_CONFIG].toBoolean()
+        val chainId = props[CosmosSourceConnector.CHAIN_ID_CONFIG]
+        topic = props[CosmosSourceConnector.TOPIC_CONFIG] ?: throw Exception("Topic cannot be empty")
         maxPollLength = props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG]?.toLong() ?: 1000
-        tlsEnable = props[CosmosSourceConnector.TLS_ENABLE_CONFIG].toBoolean()
 
         sourcePartition = mapOf(
             CHAIN_ID_FIELD to chainId,
             NODE_FIELD to nodeAddress
         )
-        serviceClient = CosmosServiceClient(nodeAddress.orEmpty(), nodePort, tlsEnable)
+        serviceClient = CosmosServiceClient(nodeAddress, nodePort, tlsEnable)
     }
 
     @Throws(InterruptedException::class)
     override fun poll(): List<SourceRecord> {
-        // Get last block height
-        height = offset[HEIGHT_FIELD] as Long
+        // Get last block height from offset storage
+        var height = context
+            .offsetStorageReader()
+            .offset(Collections.singletonMap<String, Any>("BLOCK_FIELD", "okp4"/* TODO: find which value goes here*/))[HEIGHT_FIELD] as Long
 
         val sourceRecords: MutableList<SourceRecord> = mutableListOf()
 
@@ -51,7 +44,7 @@ class CosmosSourceTask : SourceTask() {
 
         runBlocking {
             while (i <= maxPollLength) {
-                val result = serviceClient.getBlockByHeight(i)
+                val result = serviceClient.getBlockByHeight(height)
                 if (result.isFailure) {
                     break
                 } else {
