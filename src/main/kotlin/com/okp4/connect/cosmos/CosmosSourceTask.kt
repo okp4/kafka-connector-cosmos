@@ -12,6 +12,7 @@ class CosmosSourceTask : SourceTask() {
     private var nodePort: Int = 0
     private var topic: String? = null
     private var maxPollLength: Long = 0
+    private var tlsEnable = false
 
     private var sourcePartition: Map<String, String?> = mapOf()
     private var height: Long = 0
@@ -30,12 +31,13 @@ class CosmosSourceTask : SourceTask() {
         nodePort = props[CosmosSourceConnector.NODE_PORT_CONFIG]?.toInt() ?: 0
         topic = props[CosmosSourceConnector.TOPIC_CONFIG]
         maxPollLength = props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG]?.toLong() ?: 1000
+        tlsEnable = props[CosmosSourceConnector.TLS_ENABLE_CONFIG].toBoolean()
 
         sourcePartition = mapOf(
             CHAIN_ID_FIELD to chainId,
             NODE_FIELD to nodeAddress
         )
-        serviceClient = CosmosServiceClient(nodeAddress.orEmpty(), nodePort)
+        serviceClient = CosmosServiceClient(nodeAddress.orEmpty(), nodePort, tlsEnable)
     }
 
     @Throws(InterruptedException::class)

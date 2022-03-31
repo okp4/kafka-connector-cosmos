@@ -33,6 +33,7 @@ class CosmosSourceConnector : SourceConnector() {
         const val NODE_PORT_CONFIG = "node-port"
         const val CHAIN_ID_CONFIG = "chain-id"
         const val MAX_POLL_LENGTH_CONFIG = "max-poll-length"
+        const val TLS_ENABLE_CONFIG = "tls-enable-config"
 
         val VERSION: String = AppInfoParser.getVersion()
 
@@ -58,6 +59,12 @@ class CosmosSourceConnector : SourceConnector() {
             1000,
             Importance.MEDIUM,
             "The max number of block to put in the queue",
+        ).define(
+            TLS_ENABLE_CONFIG,
+            ConfigDef.Type.BOOLEAN,
+            false,
+            Importance.MEDIUM,
+            "Enable secure transport",
         )
     }
 }
