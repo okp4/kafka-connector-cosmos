@@ -13,14 +13,12 @@ class CosmosServiceClient(address: String, port: Int) : Closeable {
     private val stub: ServiceGrpcKt.ServiceCoroutineStub = ServiceGrpcKt.ServiceCoroutineStub(channel)
 
     suspend fun getBlockByHeight(height: Long): Result<BlockOuterClass.Block> {
-        return try {
-            val request = Query.GetBlockByHeightRequest.newBuilder()
-                .setHeight(height)
-                .build()
-            val response = stub.getBlockByHeight(request)
-            Result.success(response.block)
-        } catch (e: Exception) {
-            Result.failure(e)
+        return stub.runCatching {
+            stub.getBlockByHeight(
+                Query.GetBlockByHeightRequest.newBuilder()
+                    .setHeight(height)
+                    .build()
+            ).block
         }
     }
 
