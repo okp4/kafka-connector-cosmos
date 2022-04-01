@@ -35,4 +35,6 @@ class CosmosServiceClient(address: String, port: Int, tls: Boolean) : Closeable 
     override fun close() {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
     }
+
+    fun isClosed(): Boolean = channel.isTerminated
 }

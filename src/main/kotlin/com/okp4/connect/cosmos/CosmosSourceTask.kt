@@ -45,7 +45,7 @@ class CosmosSourceTask : SourceTask() {
         val sourceRecords: MutableList<SourceRecord> = mutableListOf()
 
         runBlocking {
-            while (sourceRecords.size <= maxPollLength) {
+            while (sourceRecords.size <= maxPollLength && !serviceClient.isClosed()) {
                 ++height
                 serviceClient.getBlockByHeight(height).fold(
                     onSuccess = {
