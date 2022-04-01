@@ -13,11 +13,12 @@ class CosmosServiceClient(address: String, port: Int, tls: Boolean) : Closeable 
     private val stub: ServiceGrpcKt.ServiceCoroutineStub
 
     init {
-        channel = if (tls) {
-            ManagedChannelBuilder.forAddress(address, port).useTransportSecurity()
-        } else {
-            ManagedChannelBuilder.forAddress(address, port).usePlaintext()
-        }.build()
+        channel = ManagedChannelBuilder
+            .forAddress(address, port)
+            .apply {
+                if (tls) useTransportSecurity()
+                else usePlaintext()
+            }.build()
 
         stub = ServiceGrpcKt.ServiceCoroutineStub(channel)
     }
