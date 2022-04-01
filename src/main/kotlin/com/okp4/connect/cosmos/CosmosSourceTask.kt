@@ -4,6 +4,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.connect.data.Schema
+import org.apache.kafka.connect.errors.ConnectException
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
 
@@ -12,20 +13,20 @@ class CosmosSourceTask : SourceTask() {
     private var maxPollLength: Long = 0
 
     private var sourcePartition: Map<String, String?> = mapOf()
+    private fun Map<String, String>.mustGet(prop: String): String =
+        this[prop] ?: throw ConnectException("Invalid configuration. Property $prop cannot be empty")
 
     private lateinit var serviceClient: CosmosServiceClient
 
     override fun version(): String = CosmosSourceConnector.VERSION
 
     override fun start(props: Map<String, String>) {
-        val nodeAddress =
-            props[CosmosSourceConnector.NODE_ADDRESS_CONFIG] ?: throw Exception("Node address cannot be empty")
-        val nodePort =
-            props[CosmosSourceConnector.NODE_PORT_CONFIG]?.toInt() ?: throw Exception("Node port cannot be empty")
-        val tlsEnable = props[CosmosSourceConnector.TLS_ENABLE_CONFIG].toBoolean()
-        val chainId = props[CosmosSourceConnector.CHAIN_ID_CONFIG]
-        topic = props[CosmosSourceConnector.TOPIC_CONFIG] ?: throw Exception("Topic cannot be empty")
-        maxPollLength = props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG]?.toLong() ?: throw Exception("Max poll length cannot be empty")
+        val nodeAddress = props.mustGet(CosmosSourceConnector.NODE_ADDRESS_CONFIG)
+        val nodePort = props.mustGet(CosmosSourceConnector.NODE_PORT_CONFIG).toInt()
+        val tlsEnable = props.mustGet(CosmosSourceConnector.TLS_ENABLE_CONFIG).toBoolean()
+        val chainId = props.mustGet(CosmosSourceConnector.CHAIN_ID_CONFIG)
+        topic = props.mustGet(CosmosSourceConnector.TOPIC_CONFIG)
+        maxPollLength = props.mustGet(CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG).toLong()
 
         sourcePartition = mapOf(
             CHAIN_ID_FIELD to chainId,
@@ -40,7 +41,7 @@ class CosmosSourceTask : SourceTask() {
         var height = context
             .offsetStorageReader()
             .offset(sourcePartition)
-            .getOrDefault(HEIGHT_FIELD, 0L) as Long
+            .getOrDefault(HEIGHT_FIELD, -1L) as Long
 
         val sourceRecords: MutableList<SourceRecord> = mutableListOf()
 
