@@ -30,7 +30,9 @@ dependencies {
     val kafkaVersion = "3.1.0"
     compileOnly("org.apache.kafka:connect-api:$kafkaVersion")
     compileOnly("org.apache.kafka:connect-runtime:$kafkaVersion")
-    compileOnly("com.okp4.grpc:cosmos-sdk:1.0-SNAPSHOT")
+
+    val cosmosSdkVersion = "1.0-SNAPSHOT"
+    compileOnly("com.okp4.grpc:cosmos-sdk:$cosmosSdkVersion")
 
     testImplementation(kotlin("test"))
 
