@@ -66,7 +66,7 @@ class CosmosSourceTask : SourceTask() {
                     onFailure = {
                         // If the status of the exception is INVALID_ARGUMENT,
                         // it means that we reached the end of the chain
-                        if ((it is StatusException) && (it.status == Status.INVALID_ARGUMENT)) return@runBlocking
+                        if ((it is StatusException) && (it.status.code == Status.Code.INVALID_ARGUMENT)) return@runBlocking
                         else throw it
                     }
                 )
