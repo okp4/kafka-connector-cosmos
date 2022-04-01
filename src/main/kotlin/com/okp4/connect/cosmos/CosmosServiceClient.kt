@@ -23,15 +23,14 @@ class CosmosServiceClient(address: String, port: Int, tls: Boolean) : Closeable 
         stub = ServiceGrpcKt.ServiceCoroutineStub(channel)
     }
 
-    suspend fun getBlockByHeight(height: Long): Result<BlockOuterClass.Block> {
-        return stub.runCatching {
-            stub.getBlockByHeight(
+    suspend fun getBlockByHeight(height: Long): Result<BlockOuterClass.Block> =
+        stub.runCatching {
+            getBlockByHeight(
                 Query.GetBlockByHeightRequest.newBuilder()
                     .setHeight(height)
                     .build()
             ).block
         }
-    }
 
     override fun close() {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
