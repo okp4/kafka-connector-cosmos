@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import org.apache.kafka.connect.data.Schema
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
-import java.util.Collections
 
 class CosmosSourceTask : SourceTask() {
     private lateinit var topic: String
@@ -36,14 +35,13 @@ class CosmosSourceTask : SourceTask() {
         // Get last block height from offset storage
         var height = context
             .offsetStorageReader()
-            .offset(Collections.singletonMap<String, Any>("BLOCK_FIELD", "okp4"/* TODO: find which value goes here*/))[HEIGHT_FIELD] as Long
+            .offset(sourcePartition)
+            .getOrDefault(HEIGHT_FIELD, 0L) as Long
 
         val sourceRecords: MutableList<SourceRecord> = mutableListOf()
 
-        var i: Long = 0
-
         runBlocking {
-            while (i <= maxPollLength) {
+            while (sourceRecords.size <= maxPollLength) {
                 val result = serviceClient.getBlockByHeight(height)
                 if (result.isFailure) {
                     break
@@ -63,7 +61,6 @@ class CosmosSourceTask : SourceTask() {
                     )
                 }
                 ++height
-                ++i
             }
         }
         return sourceRecords
