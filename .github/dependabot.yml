@@ -6,3 +6,10 @@ updates:
       interval: "daily"
     reviewers:
       - "maintainers"
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "maintainers"
