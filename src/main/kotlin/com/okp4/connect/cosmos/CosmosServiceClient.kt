@@ -33,7 +33,7 @@ class CosmosServiceClient(private val channel: ManagedChannel, private val stub:
                     else usePlaintext()
                 }.build()
 
-            return CosmosServiceClient(channel, ServiceGrpcKt.ServiceCoroutineStub(channel));
+            return CosmosServiceClient(channel, ServiceGrpcKt.ServiceCoroutineStub(channel))
         }
     }
 }

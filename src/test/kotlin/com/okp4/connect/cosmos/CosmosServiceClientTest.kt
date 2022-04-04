@@ -27,7 +27,7 @@ class CosmosServiceClientTest : BehaviorSpec({
         `when`("requesting the corresponding block") {
             val req = slot<Query.GetBlockByHeightRequest>()
             coEvery { stub.getBlockByHeight(capture(req), any()) } returns Query.GetBlockByHeightResponse.getDefaultInstance()
-            
+
             then("it shall fetch the block") {
                 val resp = cosmosService.getBlockByHeight(height)
 
