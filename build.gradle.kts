@@ -32,9 +32,7 @@ dependencies {
     compileOnly("org.apache.kafka:connect-runtime:$kafkaVersion")
 
     val cosmosSdkVersion = "1.0-SNAPSHOT"
-    compileOnly("com.okp4.grpc:cosmos-sdk:$cosmosSdkVersion")
-
-    testImplementation(kotlin("test"))
+    implementation("com.okp4.grpc:cosmos-sdk:$cosmosSdkVersion")
 
     val grpcKotlinVersion = "1.2.1"
     api("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
@@ -46,7 +44,10 @@ dependencies {
     api("io.grpc:grpc-protobuf:$grpcVersion")
     runtimeOnly("io.grpc:grpc-netty:$grpcVersion")
 
+    val mockkVersion = "1.12.3"
     val kotestVersion = "5.2.1"
+    testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
@@ -81,6 +82,13 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.apply {
         jvmTarget = "11"
         allWarningsAsErrors = true
+    }
+}
+
+tasks.named<KotlinCompile>("compileTestKotlin") {
+    kotlinOptions.apply {
+        jvmTarget = "11"
+        allWarningsAsErrors = false
     }
 }
 
