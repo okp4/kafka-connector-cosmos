@@ -24,13 +24,18 @@ class CosmosServiceClientTest : BehaviorSpec({
 
     given("an existing height") {
         val height = 42L
+        val req = slot<Query.GetBlockByHeightRequest>()
+        coEvery {
+            stub.getBlockByHeight(
+                capture(req),
+                any()
+            )
+        } returns Query.GetBlockByHeightResponse.getDefaultInstance()
+
         `when`("requesting the corresponding block") {
-            val req = slot<Query.GetBlockByHeightRequest>()
-            coEvery { stub.getBlockByHeight(capture(req), any()) } returns Query.GetBlockByHeightResponse.getDefaultInstance()
+            val resp = cosmosService.getBlockByHeight(height)
 
             then("it shall fetch the block") {
-                val resp = cosmosService.getBlockByHeight(height)
-
                 resp shouldBe Result.success(BlockOuterClass.Block.getDefaultInstance())
                 req.captured.height shouldBe height
             }
@@ -39,12 +44,12 @@ class CosmosServiceClientTest : BehaviorSpec({
 
     given("a wrong height") {
         val height = 42L
+        coEvery { stub.getBlockByHeight(any(), any()) } throws StatusException(Status.INVALID_ARGUMENT)
+
         `when`("requesting the corresponding block") {
-            coEvery { stub.getBlockByHeight(any(), any()) } throws StatusException(Status.INVALID_ARGUMENT)
+            val resp = cosmosService.getBlockByHeight(height)
 
             then("it shall fetch the block") {
-                val resp = cosmosService.getBlockByHeight(height)
-
                 resp should {
                     resp.isFailure
                 }
