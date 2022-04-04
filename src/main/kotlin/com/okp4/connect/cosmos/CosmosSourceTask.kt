@@ -7,6 +7,7 @@ import org.apache.kafka.connect.data.Schema
 import org.apache.kafka.connect.errors.ConnectException
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
+import tendermint.types.BlockOuterClass.Block
 
 class CosmosSourceTask : SourceTask() {
     private lateinit var topic: String
@@ -17,6 +18,13 @@ class CosmosSourceTask : SourceTask() {
         this[prop] ?: throw ConnectException("Invalid configuration. Property $prop cannot be empty")
 
     private lateinit var serviceClient: CosmosServiceClient
+
+    private val lastBlockHeightFromOffsetStorage: Long
+        get() =
+            context
+                .offsetStorageReader()
+                .offset(sourcePartition)
+                .getOrDefault(HEIGHT_FIELD, -1L) as Long
 
     override fun version(): String = CosmosSourceConnector.VERSION
 
@@ -37,11 +45,7 @@ class CosmosSourceTask : SourceTask() {
 
     @Throws(InterruptedException::class)
     override fun poll(): List<SourceRecord> {
-        // Get last block height from offset storage
-        var height = context
-            .offsetStorageReader()
-            .offset(sourcePartition)
-            .getOrDefault(HEIGHT_FIELD, -1L) as Long
+        var height = lastBlockHeightFromOffsetStorage
 
         val sourceRecords: MutableList<SourceRecord> = mutableListOf()
 
@@ -50,19 +54,7 @@ class CosmosSourceTask : SourceTask() {
                 ++height
                 serviceClient.getBlockByHeight(height).fold(
                     onSuccess = {
-                        sourceRecords.add(
-                            SourceRecord(
-                                sourcePartition,
-                                mapOf(HEIGHT_FIELD to height),
-                                topic,
-                                null,
-                                null,
-                                null,
-                                Schema.BYTES_SCHEMA,
-                                it.toByteArray(),
-                                System.currentTimeMillis()
-                            )
-                        )
+                        sourceRecords.add(asSourceRecord(it))
                     },
                     onFailure = {
                         // If the status of the exception is INVALID_ARGUMENT,
@@ -79,6 +71,19 @@ class CosmosSourceTask : SourceTask() {
     override fun stop() {
         serviceClient.close()
     }
+
+    private fun asSourceRecord(block: Block) =
+        SourceRecord(
+            sourcePartition,
+            mapOf(HEIGHT_FIELD to block.header.height),
+            topic,
+            null,
+            null,
+            null,
+            Schema.BYTES_SCHEMA,
+            block.toByteArray(),
+            System.currentTimeMillis()
+        )
 
     companion object {
         const val CHAIN_ID_FIELD = "chain-id"
