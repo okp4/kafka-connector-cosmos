@@ -56,9 +56,9 @@ class CosmosSourceConnector : SourceConnector() {
         ).define(
             MAX_POLL_LENGTH_CONFIG,
             ConfigDef.Type.LONG,
-            1000,
+            50,
             Importance.MEDIUM,
-            "The max number of block to put in the queue",
+            "The maximum number of blocks to fetch in each poll",
         ).define(
             TLS_ENABLE_CONFIG,
             ConfigDef.Type.BOOLEAN,
