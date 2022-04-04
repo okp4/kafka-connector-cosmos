@@ -8,21 +8,7 @@ import tendermint.types.BlockOuterClass
 import java.io.Closeable
 import java.util.concurrent.TimeUnit
 
-class CosmosServiceClient(address: String, port: Int, tls: Boolean) : Closeable {
-    private val channel: ManagedChannel
-    private val stub: ServiceGrpcKt.ServiceCoroutineStub
-
-    init {
-        channel = ManagedChannelBuilder
-            .forAddress(address, port)
-            .apply {
-                if (tls) useTransportSecurity()
-                else usePlaintext()
-            }.build()
-
-        stub = ServiceGrpcKt.ServiceCoroutineStub(channel)
-    }
-
+class CosmosServiceClient(private val channel: ManagedChannel, private val stub: ServiceGrpcKt.ServiceCoroutineStub) : Closeable {
     suspend fun getBlockByHeight(height: Long): Result<BlockOuterClass.Block> =
         stub.runCatching {
             getBlockByHeight(
@@ -37,4 +23,17 @@ class CosmosServiceClient(address: String, port: Int, tls: Boolean) : Closeable 
     }
 
     fun isClosed(): Boolean = channel.isTerminated
+
+    companion object Factory {
+        fun with(address: String, port: Int, tls: Boolean): CosmosServiceClient {
+            val channel = ManagedChannelBuilder
+                .forAddress(address, port)
+                .apply {
+                    if (tls) useTransportSecurity()
+                    else usePlaintext()
+                }.build()
+
+            return CosmosServiceClient(channel, ServiceGrpcKt.ServiceCoroutineStub(channel));
+        }
+    }
 }

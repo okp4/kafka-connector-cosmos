@@ -32,7 +32,7 @@ class CosmosSourceTask : SourceTask() {
             CHAIN_ID_FIELD to chainId,
             NODE_FIELD to nodeAddress
         )
-        serviceClient = CosmosServiceClient(nodeAddress, nodePort, tlsEnable)
+        serviceClient = CosmosServiceClient.with(nodeAddress, nodePort, tlsEnable)
     }
 
     @Throws(InterruptedException::class)
