@@ -1,0 +1,27 @@
+branches:
+  - main
+
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
+  - - "@semantic-release/changelog"
+    - changelogFile: CHANGELOG.md
+      changelogTitle: "# CØSMOS Kafka Connector"
+  - - '@google/semantic-release-replace-plugin'
+    - replacements:
+        - files:
+            - gradle.properties
+          from: 'project\.version=.*'
+          to: 'project.version=${nextRelease.version}'
+          countMatches: true
+          results:
+            - file: kotlin/gradle.properties
+              hasChanged: true
+              numMatches: 1
+              numReplacements: 1
+  - "@semantic-release/github"
+  - - "@semantic-release/git"
+    - assets:
+        - CHANGELOG.md
+        - gradle.properties
+      message: "chore(release): perform release ${nextRelease.version}"
