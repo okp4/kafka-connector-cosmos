@@ -15,7 +15,7 @@ plugins:
           to: 'project.version=${nextRelease.version}'
           countMatches: true
           results:
-            - file: kotlin/gradle.properties
+            - file: gradle.properties
               hasChanged: true
               numMatches: 1
               numReplacements: 1
