@@ -6,7 +6,6 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import tendermint.types.BlockOuterClass
 import java.io.Closeable
-import java.util.concurrent.TimeUnit
 
 class CosmosServiceClient(private val channel: ManagedChannel, private val stub: ServiceGrpcKt.ServiceCoroutineStub) : Closeable {
     suspend fun getBlockByHeight(height: Long): Result<BlockOuterClass.Block> =
@@ -19,10 +18,10 @@ class CosmosServiceClient(private val channel: ManagedChannel, private val stub:
         }
 
     override fun close() {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
+        channel.shutdown()
     }
 
-    fun isClosed(): Boolean = channel.isTerminated
+    fun isClosed(): Boolean = channel.isShutdown
 
     companion object Factory {
         fun with(address: String, port: Int, tls: Boolean): CosmosServiceClient {
