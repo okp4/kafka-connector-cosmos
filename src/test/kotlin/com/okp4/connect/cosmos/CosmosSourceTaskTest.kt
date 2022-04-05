@@ -46,7 +46,7 @@ class CosmosSourceTaskTest : BehaviorSpec({
             ++callCount
             if (callCount == failAt)
                 Result.failure(StatusException(Status.DEADLINE_EXCEEDED))
-            else if(callCount > height - offset)
+            else if (callCount > height - offset)
                 Result.failure(StatusException(Status.INVALID_ARGUMENT))
             else
                 Result.success(BlockOuterClass.Block.newBuilder().setHeader(Types.Header.newBuilder().setHeight((offset + callCount).toLong())).build())
@@ -171,5 +171,4 @@ class CosmosSourceTaskTest : BehaviorSpec({
             }
         }
     }
-
 })
