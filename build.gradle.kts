@@ -7,7 +7,6 @@ plugins {
     id("maven-publish")
 
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
-    id("org.jmailen.kotlinter") version "3.9.0"
     id("io.gitlab.arturbosch.detekt") version "1.20.0-RC1"
 }
 
@@ -17,19 +16,41 @@ description = "A Kafka Connect CØSMOS connector for ingesting blocks from CØSM
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/okp4/kafka-connector-cosmos")
+        credentials {
+            username = System.getenv("MAVEN_REPOSITORY_USERNAME")
+            password = System.getenv("MAVEN_REPOSITORY_PASSWORD")
+        }
+    }
 }
 
 dependencies {
     val kafkaVersion = "3.1.0"
-    compileOnly("org.apache.kafka:connect-api:$kafkaVersion")
+    api("org.apache.kafka:connect-api:$kafkaVersion")
     compileOnly("org.apache.kafka:connect-runtime:$kafkaVersion")
 
-    testImplementation(kotlin("test"))
+    val cosmosSdkVersion = "1.0-SNAPSHOT"
+    implementation("com.okp4.grpc:cosmos-sdk:$cosmosSdkVersion")
 
+    val grpcKotlinVersion = "1.2.1"
+    api("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
+
+    val coroutinesVersion = "1.6.0"
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+
+    val grpcVersion = "1.45.0"
+    api("io.grpc:grpc-protobuf:$grpcVersion")
+    runtimeOnly("io.grpc:grpc-netty:$grpcVersion")
+
+    val mockkVersion = "1.12.3"
     val kotestVersion = "5.2.1"
+    testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
+    testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
 }
 
 tasks {
@@ -55,6 +76,14 @@ tasks.register("lint") {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+
+    testLogging {
+        events("PASSED", "SKIPPED", "FAILED")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
 }
 
 tasks.withType<KotlinCompile> {
@@ -64,8 +93,11 @@ tasks.withType<KotlinCompile> {
     }
 }
 
-application {
-    mainClass.set("MainKt")
+tasks.named<KotlinCompile>("compileTestKotlin") {
+    kotlinOptions.apply {
+        jvmTarget = "11"
+        allWarningsAsErrors = false
+    }
 }
 
 publishing {
