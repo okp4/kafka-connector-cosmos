@@ -24,11 +24,10 @@ fun prepareVersion(): String {
             it.takeIf { it[2] == 0 }?.subList(0, 2) ?: it
         }.let {
             it.takeIf { !project.hasProperty("release") }?.mapIndexed { i, d ->
-                if(i == 1) d + 1 else d
+                if (i == 1) d + 1 else d
             } ?: it
         }.joinToString(".") + project.hasProperty("release").let { if (it) "" else "-SNAPSHOT" }
 }
-
 
 afterEvaluate {
     project.version = prepareVersion()
