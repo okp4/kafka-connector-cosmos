@@ -58,7 +58,7 @@ dependencies {
     val coroutinesVersion = "1.6.0"
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
-    val grpcVersion = "1.45.0"
+    val grpcVersion = "1.45.1"
     api("io.grpc:grpc-protobuf:$grpcVersion")
     runtimeOnly("io.grpc:grpc-netty:$grpcVersion")
 
