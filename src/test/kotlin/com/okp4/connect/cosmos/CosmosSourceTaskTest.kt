@@ -32,8 +32,20 @@ class CosmosSourceTaskTest : BehaviorSpec({
         CosmosServiceClient.with(any(), any(), any())
     } returns cosmosClient
 
-    fun mockForPoll(offset: Int, height: Int, failAt: Int?, closedAfter: Int?) {
-        every { cosmosSourceTask getProperty "lastBlockHeightFromOffsetStorage" } returns offset.toLong()
+    fun mockForPoll(offset: Int?, height: Int, failAt: Int?, closedAfter: Int?) {
+        cosmosSourceTask.initialize(
+            mockk {
+                every {
+                    offsetStorageReader()
+                } returns mockk {
+                    every {
+                        offset(any() as Map<String, String>)
+                    } answers {
+                        offset?.let { mapOf(CosmosSourceTask.HEIGHT_FIELD to it.toLong()) }
+                    }
+                }
+            }
+        )
 
         var callCount = 0
         every { cosmosClient.isClosed() } answers {
@@ -44,25 +56,26 @@ class CosmosSourceTaskTest : BehaviorSpec({
             cosmosClient.getBlockByHeight(any())
         } answers {
             ++callCount
+            val reqHeight = (offset ?: -1) + callCount
             if (callCount == failAt)
                 Result.failure(StatusException(Status.DEADLINE_EXCEEDED))
-            else if (callCount > height - offset)
+            else if (reqHeight >= height)
                 Result.failure(StatusException(Status.INVALID_ARGUMENT))
             else
-                Result.success(BlockOuterClass.Block.newBuilder().setHeader(Types.Header.newBuilder().setHeight((offset + callCount).toLong())).build())
+                Result.success(BlockOuterClass.Block.newBuilder().setHeader(Types.Header.newBuilder().setHeight(reqHeight.toLong())).build())
         }
     }
 
     given("A cosmos service") {
         withData(
             mapOf(
-                "poll stopped by reaching max poll" to arrayOf(10, 5, 0, 5),
-                "poll stopped by reaching height" to arrayOf(10, 15, 0, 10),
-                "limit case: reach both height and max poll" to arrayOf(10, 10, 0, 10),
-                "poll stopped by reaching max poll (with offset)" to arrayOf(15, 5, 5, 5),
-                "poll stopped by reaching height (with offset)" to arrayOf(15, 10, 5, 10),
-                "limit case: reach both height and max poll (with offset)" to arrayOf(15, 10, 5, 10),
-                "height == offset" to arrayOf(5, 10, 5, 0),
+                "poll stopped by reaching max poll" to arrayOf(10, 5, -1, 5),
+                "poll stopped by reaching height" to arrayOf(10, 15, -1, 10),
+                "limit case: reach both height and max poll" to arrayOf(10, 10, -1, 10),
+                "poll stopped by reaching max poll (with offset)" to arrayOf(15, 5, 4, 5),
+                "poll stopped by reaching height (with offset)" to arrayOf(15, 10, 4, 10),
+                "limit case: reach both height and max poll (with offset)" to arrayOf(15, 10, 4, 10),
+                "offset is last block" to arrayOf(5, 10, 4, 0),
             )
         ) { (height, maxPoll, offset, pollLen) ->
             and("an height of $height") {
@@ -70,7 +83,7 @@ class CosmosSourceTaskTest : BehaviorSpec({
                     props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG] = maxPoll.toString()
 
                     and("an offset of $offset") {
-                        mockForPoll(offset, height, null, null)
+                        mockForPoll(offset.takeUnless { it < 0 }, height, null, null)
                         cosmosSourceTask.start(props)
 
                         When("poll is called") {
@@ -97,7 +110,7 @@ class CosmosSourceTaskTest : BehaviorSpec({
         }
 
         When("an error occurred during poll") {
-            mockForPoll(0, 4, 3, null)
+            mockForPoll(null, 4, 3, null)
             props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG] = "10"
             cosmosSourceTask.start(props)
 
@@ -109,15 +122,15 @@ class CosmosSourceTaskTest : BehaviorSpec({
                 thrown.status shouldBe Status.DEADLINE_EXCEEDED
 
                 coVerifyOrder {
+                    cosmosClient.getBlockByHeight(0)
                     cosmosClient.getBlockByHeight(1)
                     cosmosClient.getBlockByHeight(2)
-                    cosmosClient.getBlockByHeight(3)
                 }
             }
         }
 
         When("the client is closed calling during poll") {
-            mockForPoll(0, 4, null, 3)
+            mockForPoll(null, 4, null, 3)
             props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG] = "10"
             cosmosSourceTask.start(props)
 
@@ -126,9 +139,9 @@ class CosmosSourceTaskTest : BehaviorSpec({
                 resp.size shouldBe 3
 
                 coVerifyOrder {
+                    cosmosClient.getBlockByHeight(0)
                     cosmosClient.getBlockByHeight(1)
                     cosmosClient.getBlockByHeight(2)
-                    cosmosClient.getBlockByHeight(3)
                 }
             }
         }
