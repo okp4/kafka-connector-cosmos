@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint-commits:
     runs-on: ubuntu-20.04
@@ -52,10 +56,31 @@ jobs:
       - name: Check gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
+      - name: Configure gradle.properties
+        run: |
+          cat <<EOF >> gradle.properties
+          maven.credentials.username=${{ secrets.MAVEN_REPOSITORY_USERNAME }}
+          maven.credentials.password=${{ secrets.MAVEN_REPOSITORY_PASSWORD }}
+          EOF
+
       - name: Lint kotlin files
         uses: gradle/gradle-build-action@v2
         with:
           arguments: lint
+
+  lint-dockerfile:
+    runs-on: ubuntu-20.04
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Lint dockerfile (hadolint)
+        uses: hadolint/hadolint-action@v1.6.0
+
+      - name: Lint dockerfile (docker-lint)
+        uses: luke142367/Docker-Lint-Action@v1.1.1
+        with:
+          target: Dockerfile
         env:
-          MAVEN_REPOSITORY_USERNAME: ${{ secrets.MAVEN_REPOSITORY_USERNAME }}
-          MAVEN_REPOSITORY_PASSWORD: ${{ secrets.MAVEN_REPOSITORY_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
