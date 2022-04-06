@@ -45,19 +45,18 @@ class CosmosSourceTask : SourceTask() {
     }
 
     @Throws(InterruptedException::class)
-    override fun poll(): List<SourceRecord> {
-        val height = lastBlockHeightFromOffsetStorage
-
-        return runBlocking {
-            return@runBlocking (height + 1..height + maxPollLength).asFlow()
-                .takeWhile { !serviceClient.isClosed() }
-                .map { serviceClient.getBlockByHeight(it) }
-                .map { it.getOrThrow() }
-                .catch { if (it is StatusException && it.status != Status.INVALID_ARGUMENT) throw it }
-                .map { asSourceRecord(it) }
-                .toList()
+    override fun poll(): List<SourceRecord> =
+        lastBlockHeightFromOffsetStorage.let { height ->
+            runBlocking {
+                (height + 1..height + maxPollLength).asFlow()
+                    .takeWhile { !serviceClient.isClosed() }
+                    .map { serviceClient.getBlockByHeight(it) }
+                    .map { it.getOrThrow() }
+                    .catch { if (it is StatusException && it.status != Status.INVALID_ARGUMENT) throw it }
+                    .map { asSourceRecord(it) }
+                    .toList()
+            }
         }
-    }
 
     override fun stop() {
         serviceClient.close()
