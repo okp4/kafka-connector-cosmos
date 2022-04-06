@@ -2,6 +2,7 @@ package com.okp4.connect.cosmos
 
 import io.grpc.Status
 import io.grpc.StatusException
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.connect.data.Schema
 import org.apache.kafka.connect.errors.ConnectException
@@ -45,27 +46,17 @@ class CosmosSourceTask : SourceTask() {
 
     @Throws(InterruptedException::class)
     override fun poll(): List<SourceRecord> {
-        var height = lastBlockHeightFromOffsetStorage
+        val height = lastBlockHeightFromOffsetStorage
 
-        val sourceRecords: MutableList<SourceRecord> = mutableListOf()
-
-        runBlocking {
-            while (sourceRecords.size < maxPollLength && !serviceClient.isClosed()) {
-                ++height
-                serviceClient.getBlockByHeight(height).fold(
-                    onSuccess = {
-                        sourceRecords.add(asSourceRecord(it))
-                    },
-                    onFailure = {
-                        // If the status of the exception is INVALID_ARGUMENT,
-                        // it means that we reached the end of the chain
-                        if ((it is StatusException) && (it.status.code == Status.Code.INVALID_ARGUMENT)) return@runBlocking
-                        else throw it
-                    }
-                )
-            }
+        return runBlocking {
+            return@runBlocking (height + 1..height + maxPollLength).asFlow()
+                .takeWhile { !serviceClient.isClosed() }
+                .map { serviceClient.getBlockByHeight(it) }
+                .map { it.getOrThrow() }
+                .catch { if (it is StatusException && it.status != Status.INVALID_ARGUMENT) throw it }
+                .map { asSourceRecord(it) }
+                .toList()
         }
-        return sourceRecords
     }
 
     override fun stop() {
