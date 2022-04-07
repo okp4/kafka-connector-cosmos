@@ -12,4 +12,6 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 5
     reviewers:
-      - "maintainers"
+      - "ccamel"
+      - "amimart"
+      - "ingvaar"
