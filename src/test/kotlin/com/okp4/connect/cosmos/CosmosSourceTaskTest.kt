@@ -129,7 +129,7 @@ class CosmosSourceTaskTest : BehaviorSpec({
             }
         }
 
-        When("the client is closed calling during poll") {
+        When("the client is closed during poll") {
             mockForPoll(null, 4, null, 3)
             props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG] = "10"
             cosmosSourceTask.start(props)
@@ -157,6 +157,29 @@ class CosmosSourceTaskTest : BehaviorSpec({
 
             then("it shall close the cosmos client") {
                 verify(exactly = 1) { cosmosClient.close() }
+            }
+        }
+
+        When("poll is called multiple times") {
+            mockForPoll(10, 50, null, null)
+            props[CosmosSourceConnector.MAX_POLL_LENGTH_CONFIG] = "2"
+            cosmosSourceTask.start(props)
+
+            val resp1 = cosmosSourceTask.poll()
+            val resp2 = cosmosSourceTask.poll()
+            then("the offset is not reset") {
+                resp1.size shouldBe 2
+                resp2.size shouldBe 2
+
+                resp1.last().sourceOffset() shouldBe mapOf(CosmosSourceTask.HEIGHT_FIELD to 12)
+                resp2.last().sourceOffset() shouldBe mapOf(CosmosSourceTask.HEIGHT_FIELD to 14)
+
+                coVerifyOrder {
+                    cosmosClient.getBlockByHeight(11)
+                    cosmosClient.getBlockByHeight(12)
+                    cosmosClient.getBlockByHeight(13)
+                    cosmosClient.getBlockByHeight(14)
+                }
             }
         }
     }
