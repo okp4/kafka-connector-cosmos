@@ -26,7 +26,7 @@ class CosmosSourceTask : SourceTask() {
                 .offsetStorageReader()
                 .offset(sourcePartition)
                 ?.get(HEIGHT_FIELD) as Long?
-                ?: -1L
+                ?: 0L
 
     override fun version(): String = CosmosSourceConnector.VERSION
 
