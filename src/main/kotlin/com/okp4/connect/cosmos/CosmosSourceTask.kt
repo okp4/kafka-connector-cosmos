@@ -20,13 +20,7 @@ class CosmosSourceTask : SourceTask() {
 
     private lateinit var serviceClient: CosmosServiceClient
 
-    private val lastBlockHeightFromOffsetStorage: Long
-        get() =
-            context
-                .offsetStorageReader()
-                .offset(sourcePartition)
-                ?.get(HEIGHT_FIELD) as Long?
-                ?: 0L
+    private var lastBlockHeightFromOffsetStorage: Long = 0
 
     override fun version(): String = CosmosSourceConnector.VERSION
 
@@ -43,6 +37,12 @@ class CosmosSourceTask : SourceTask() {
             NODE_FIELD to nodeAddress
         )
         serviceClient = CosmosServiceClient.with(nodeAddress, nodePort, tlsEnable)
+
+        lastBlockHeightFromOffsetStorage = context
+            .offsetStorageReader()
+            .offset(sourcePartition)
+            ?.get(HEIGHT_FIELD) as Long?
+            ?: 0L
     }
 
     @Throws(InterruptedException::class)
@@ -56,6 +56,10 @@ class CosmosSourceTask : SourceTask() {
                     .catch { if (it is StatusException && it.status != Status.INVALID_ARGUMENT) throw it }
                     .map { asSourceRecord(it) }
                     .toList()
+            }
+        }.also {
+            it.takeIf { it.isNotEmpty() }?.let { records ->
+                lastBlockHeightFromOffsetStorage = records[records.size - 1].sourceOffset()[HEIGHT_FIELD] as Long
             }
         }
 
