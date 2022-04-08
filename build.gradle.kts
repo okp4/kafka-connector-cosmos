@@ -49,7 +49,7 @@ dependencies {
     api("org.apache.kafka:connect-api:$kafkaVersion")
     compileOnly("org.apache.kafka:connect-runtime:$kafkaVersion")
 
-    val cosmosSdkVersion = "1.0-SNAPSHOT"
+    val cosmosSdkVersion = "1.0"
     implementation("com.okp4.grpc:cosmos-sdk:$cosmosSdkVersion")
 
     val grpcKotlinVersion = "1.2.1"
