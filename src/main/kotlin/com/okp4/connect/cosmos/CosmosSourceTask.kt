@@ -58,8 +58,8 @@ class CosmosSourceTask : SourceTask() {
                     .toList()
             }
         }.also {
-            it.takeIf { it.isNotEmpty() }?.let { records ->
-                lastBlockHeightFromOffsetStorage = records[records.size - 1].sourceOffset()[HEIGHT_FIELD] as Long
+            it.lastOrNull()?.run {
+                lastBlockHeightFromOffsetStorage = sourceOffset()[HEIGHT_FIELD] as Long
             }
         }
 
