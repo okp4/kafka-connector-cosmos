@@ -53,7 +53,7 @@ class CosmosSourceTask : SourceTask() {
                     .takeWhile { !serviceClient.isClosed() }
                     .map { serviceClient.getBlockByHeight(it) }
                     .map { it.getOrThrow() }
-                    .catch { if (it is StatusException && it.status != Status.INVALID_ARGUMENT) throw it }
+                    .catch { if (it is StatusException && it.status.code != Status.INVALID_ARGUMENT.code) throw it }
                     .map { asSourceRecord(it) }
                     .toList()
             }
