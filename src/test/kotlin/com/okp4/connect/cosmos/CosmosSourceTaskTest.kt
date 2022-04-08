@@ -8,6 +8,7 @@ import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import io.mockk.*
 import org.apache.kafka.connect.errors.ConnectException
+import org.apache.kafka.connect.errors.RetriableException
 import tendermint.types.BlockOuterClass
 import tendermint.types.Types
 
@@ -115,11 +116,11 @@ class CosmosSourceTaskTest : BehaviorSpec({
             cosmosSourceTask.start(props)
 
             then("it shall complete exceptionally") {
-                val thrown = shouldThrow<StatusException> {
+                val thrown = shouldThrow<RetriableException> {
                     cosmosSourceTask.poll()
                 }
 
-                thrown.status shouldBe Status.DEADLINE_EXCEEDED
+                (thrown.cause as StatusException).status shouldBe Status.DEADLINE_EXCEEDED
 
                 coVerifyOrder {
                     cosmosClient.getBlockByHeight(1)
