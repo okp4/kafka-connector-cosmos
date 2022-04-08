@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.connect.data.Schema
 import org.apache.kafka.connect.errors.ConnectException
+import org.apache.kafka.connect.errors.RetriableException
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.source.SourceTask
 import tendermint.types.BlockOuterClass.Block
@@ -53,7 +54,7 @@ class CosmosSourceTask : SourceTask() {
                     .takeWhile { !serviceClient.isClosed() }
                     .map { serviceClient.getBlockByHeight(it) }
                     .map { it.getOrThrow() }
-                    .catch { if (it is StatusException && it.status != Status.INVALID_ARGUMENT) throw it }
+                    .catch { if (it is StatusException && it.status.code != Status.INVALID_ARGUMENT.code) throw RetriableException(it) }
                     .map { asSourceRecord(it) }
                     .toList()
             }
