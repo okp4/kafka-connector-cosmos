@@ -60,7 +60,7 @@ class CosmosSourceTaskTest : BehaviorSpec({
             if (callCount == failAt)
                 Result.failure(StatusException(Status.DEADLINE_EXCEEDED))
             else if (reqHeight > height)
-                Result.failure(StatusException(Status.INVALID_ARGUMENT))
+                Result.failure(StatusException(Status.INVALID_ARGUMENT.withDescription("hop hop hop stop!")))
             else
                 Result.success(BlockOuterClass.Block.newBuilder().setHeader(Types.Header.newBuilder().setHeight(reqHeight.toLong())).build())
         }
