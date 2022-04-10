@@ -3,6 +3,7 @@
 > Kafka Connect connector for CØSMOS based blockchains.
 
 [![build](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/build.yml/badge.svg)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/build.yml)
+[![lint](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/lint.yml/badge.svg)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/lint.yml)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 [![conventional commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
