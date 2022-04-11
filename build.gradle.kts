@@ -63,7 +63,7 @@ dependencies {
     runtimeOnly("io.grpc:grpc-netty:$grpcVersion")
 
     val mockkVersion = "1.12.3"
-    val kotestVersion = "5.2.2"
+    val kotestVersion = "5.2.3"
     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
