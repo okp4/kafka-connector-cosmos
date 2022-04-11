@@ -2,8 +2,13 @@
 
 > Kafka Connect connector for CØSMOS based blockchains.
 
+[![version](https://badgen.net/github/release/okp4/kafka-connector-cosmos)](https://github.com/okp4/kafka-connector-cosmos/releases)
+[![build](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/build.yml/badge.svg)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/build.yml)
+[![lint](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/lint.yml/badge.svg)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/lint.yml)
+[![test](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/test.yml/badge.svg)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/test.yml)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 [![conventional commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 ## Purpose
 
