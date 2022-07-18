@@ -7,7 +7,7 @@ plugins {
     id("maven-publish")
 
     id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
-    id("io.gitlab.arturbosch.detekt") version "1.20.0-RC2"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
 group = "com.okp4"
@@ -36,7 +36,7 @@ afterEvaluate {
 repositories {
     mavenCentral()
     maven {
-        url = uri("https://maven.pkg.github.com/okp4/kafka-connector-cosmos")
+        url = uri("https://maven.pkg.github.com/okp4/okp4-cosmos-proto")
         credentials {
             username = project.property("maven.credentials.username") as String
             password = project.property("maven.credentials.password") as String
@@ -49,7 +49,7 @@ dependencies {
     api("org.apache.kafka:connect-api:$kafkaVersion")
     compileOnly("org.apache.kafka:connect-runtime:$kafkaVersion")
 
-    val cosmosSdkVersion = "1.0"
+    val cosmosSdkVersion = "1.1"
     implementation("com.okp4.grpc:cosmos-sdk:$cosmosSdkVersion")
 
     val grpcKotlinVersion = "1.2.1"
