@@ -2,13 +2,14 @@
 
 > Kafka Connect connector for CØSMOS based blockchains.
 
-[![version](https://badgen.net/github/release/okp4/kafka-connector-cosmos)](https://github.com/okp4/kafka-connector-cosmos/releases)
-[![build](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/build.yml/badge.svg)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/build.yml)
-[![lint](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/lint.yml/badge.svg)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/lint.yml)
-[![test](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/test.yml/badge.svg)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/test.yml)
-[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
-[![conventional commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![version](https://img.shields.io/github/v/release/okp4/kafka-connector-cosmos?style=for-the-badge&logo=github)](https://github.com/okp4/kafka-connector-cosmos/releases)
+[![build](https://img.shields.io/github/workflow/status/okp4/kafka-connector-cosmos/Build?label=build&style=for-the-badge&logo=github)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/build.yml)
+[![lint](https://img.shields.io/github/workflow/status/okp4/kafka-connector-cosmos/Lint?label=lint&style=for-the-badge&logo=github)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/lint.yml)
+[![test](https://img.shields.io/github/workflow/status/okp4/kafka-connector-cosmos/Test?label=test&style=for-the-badge&logo=github)](https://github.com/okp4/kafka-connector-cosmos/actions/workflows/test.yml)
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg?style=for-the-badge)](https://ktlint.github.io/)
+[![conventional commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=for-the-badge&logo=conventionalcommits)](https://conventionalcommits.org)
+[![contributor covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?style=for-the-badge)](https://github.com/okp4/.github/blob/main/CODE_OF_CONDUCT.md)
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg?style=for-the-badge)](https://opensource.org/licenses/BSD-3-Clause)
 
 ## Purpose
 
