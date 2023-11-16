@@ -5,11 +5,13 @@ updates:
     schedule:
       interval: "daily"
     reviewers:
-      - "maintainers"
+      - amimart
+      - ccamel
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 5
     reviewers:
-      - "maintainers"
+      - amimart
+      - ccamel
